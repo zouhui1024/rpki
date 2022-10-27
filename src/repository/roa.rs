@@ -47,9 +47,9 @@ impl Roa {
         check_crl: F
     ) -> Result<(ResourceCert, RouteOriginAttestation), ValidationError>
     where F: FnOnce(&Cert) -> Result<(), ValidationError> {
-        let cert = self.signed.validate(issuer, strict)?;
-        check_crl(cert.as_ref())?;
-        self.content.verify(&cert)?;
+        let cert = self.signed.validate_zh(issuer, strict)?;
+        check_crl(cert.as_ref())?;  //验证撤销状态
+        self.content.verify(&cert)?; //验证资源包含关系
         Ok((cert, self.content))
     }
 

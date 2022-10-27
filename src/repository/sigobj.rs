@@ -210,7 +210,22 @@ impl SignedObject {
         Ok((cert, res.into_bytes()))
     }
 
-    /// Validates the signed object.
+    /// Validates the signed object.（ghostbuster）
+    pub fn process_zh<F>(
+        self,
+        issuer: &ResourceCert,
+        strict: bool,
+        check_crl: F
+    ) -> Result<(ResourceCert, Bytes), ValidationError>
+    where F: FnOnce(&Cert) -> Result<(), ValidationError> {
+        let res = self.content.clone();
+        let cert = self.validate_zh(issuer, strict)?;
+        check_crl(cert.as_ref())?;
+        Ok((cert, res.into_bytes()))
+    }
+
+
+    /// Validates the signed object.（manifest）
     ///
     /// Upon success, the method returns the validated EE certificate of the
     /// object.
@@ -222,7 +237,7 @@ impl SignedObject {
         self.validate_at(issuer, strict, Time::now())
     }
 
-    /// Validates the signed object at he given time.
+    /// Validates the signed object at he given time.（manifest：需要验证数字签名）
     pub fn validate_at(
         self,
         issuer: &ResourceCert,
@@ -230,9 +245,34 @@ impl SignedObject {
         now: Time,
     ) -> Result<ResourceCert, ValidationError> {
         self.inspect(strict)?;
-        self.verify(strict)?;
+        self.verify(strict)?; //使用EE证书验证载荷的数字签名
         self.cert.validate_ee_at(issuer, strict, now).map_err(Into::into)
     }
+
+
+     /// Validates the signed object.（其他签名对象）
+    pub fn validate_zh(
+        self,
+        issuer: &ResourceCert,
+        strict: bool,
+    ) -> Result<ResourceCert, ValidationError> {
+        self.validate_at_zh(issuer, strict, Time::now())
+    }
+
+    /// Validates the signed object at the given time.（其他签名对象：不需要验证数字签名）
+    pub fn validate_at_zh(
+        self,
+        issuer: &ResourceCert,
+        strict: bool,
+        now: Time,
+    ) -> Result<ResourceCert, ValidationError> {
+        self.inspect(strict)?;
+        // zh检测
+        // self.verify(strict)?;
+        self.cert.validate_ee_at(issuer, strict, now).map_err(Into::into) //仍然需要使用签发者证书验证EE证书，但是不验证数字签名
+    }
+
+
 
     /// Validates that the signed object complies with the specification.
     ///

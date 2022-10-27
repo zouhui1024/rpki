@@ -715,8 +715,9 @@ impl Cert {
         self, issuer: &ResourceCert, strict: bool, now: Time,
     ) -> Result<ResourceCert, VerificationError> {
         self.verify_validity(now)?;
-        self.verify_issuer_claim(issuer, strict)?;
-        self.verify_signature(issuer, strict)?;
+        // zh检测
+        // self.verify_issuer_claim(issuer, strict)?;
+        // self.verify_signature(issuer, strict)?;
         self.verify_resources(issuer, strict)
     }
 
@@ -738,8 +739,9 @@ impl Cert {
         self, issuer: &ResourceCert, strict: bool, now: Time,
     ) -> Result<ResourceCert, VerificationError> {
         self.verify_validity(now)?;
-        self.verify_issuer_claim(issuer, strict)?;
-        self.verify_signature(issuer, strict)?;
+        // zh检测
+        // self.verify_issuer_claim(issuer, strict)?;
+        // self.verify_signature(issuer, strict)?;
         self.verify_resources(issuer, strict)
     }
 
@@ -761,8 +763,8 @@ impl Cert {
         &self, issuer: &ResourceCert, strict: bool, now: Time,
     ) -> Result<(), VerificationError> {
         self.verify_validity(now)?;
-        self.verify_issuer_claim(issuer, strict)?;
-        self.verify_signature(issuer, strict)?;
+        // self.verify_issuer_claim(issuer, strict)?;
+        // self.verify_signature(issuer, strict)?;
         self.verify_as_resources(issuer, strict)
     }
 
